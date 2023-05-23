@@ -14,8 +14,6 @@ type Project struct {
 	gorm.Model
 	id uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4();primary_key" json:"id,omitempty"`
 	projectName string `gorm:"size:100;not null;unique" json:"projectName"`
-	videoUrl string `json:"videoUrl"`
-	photoUrl string `json:"photoUrl"`
 	projectDescription string `gorm:"size:255;not null" json:"projectDescription"`
 	projectLocation string `gorm:"size:255;not null" json:"projectLocation"`
 	startDate *time.Time `json:"startDate"`
