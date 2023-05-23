@@ -21,7 +21,9 @@ type User struct {
 	password string  `gorm:"size:100;not null;" json:"password"`
 	projectsSupported uint `gorm:"defualt:0" json:"projectsSupported"`
 	totalAmount uint `gorm:"defualt:0" json:"totalAmount"`
-	countryId uint32 `gorm:"not null;"json:"countryId"`
+	countryId uint `gorm:"not null;"json:"countryId"`
+	country Country `gorm:"constraint:OnUpdate:CASCADE, OnDelete:SET NULL;"`
+	Countries []Country
 }
 
 func hash(password string) ([]byte, error) {
@@ -115,7 +117,7 @@ func (user *User) saveUser(db *gorm.DB) (*Country, error) {
 func (user *User) findAllUsers(db *gorm.DB) (*[]User, error) {
 	var err error
 	users := []User{}
-	err = db.Debug().Model(&User{}).Limit(100).Find(&users).Error
+	err = db.Debug().Model(&User{}).Preload("Countries").Limit(100).Find(&users).Error
 
 	if err != nil {
 		return &[]User{}, err

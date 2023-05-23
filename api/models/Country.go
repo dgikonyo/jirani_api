@@ -11,9 +11,10 @@ import (
 
 type Post struct {
 	gorm.Model
-	id uint64  `gorm:"primary_key;auto_increment" json:"id"`
+	id uint  `gorm:"primary_key;auto_increment" json:"id"`
 	countryName string `gorm:"size:255;not null;unique" json:"countryName"`
 	countryCode uint64 `gorm:"not null;unique" json:"countryCode"`
+	Users []User
 }
 
 func (country *Country) prepare() {
