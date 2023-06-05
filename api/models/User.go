@@ -5,25 +5,24 @@ import (
 	"html"
 	"log"
 	"strings"
-	"time"
 
 	"github.com/badoux/checkmail"
+	"github.com/google/uuid"
 	"github.com/jinzhu/gorm"
 	"golang.org/x/crypto/bcrypt"
-	"github.com/google/uuid"
 )
 
 type User struct {
-	id uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4();primary_key" json:"id,omitempty"`
-	firstName string  `gorm:"size:255;not null;" json:"firstName"`
-	lastName string  `gorm:"size:255;not null;" json:"lastName"`
-	email string  `gorm:"size:100;not null;unique" json:"email"`
-	password string  `gorm:"size:100;not null;" json:"password"`
-	projectsSupported uint `gorm:"defualt:0" json:"projectsSupported"`
-	totalAmount uint `gorm:"defualt:0" json:"totalAmount"`
-	countryId uint `gorm:"not null;"json:"countryId"`
-	country Country `gorm:"constraint:OnUpdate:CASCADE, OnDelete:SET NULL;"`
-	Countries []Country
+	id                uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4();primary_key" json:"id,omitempty"`
+	firstName         string    `gorm:"size:255;not null;" json:"firstName"`
+	lastName          string    `gorm:"size:255;not null;" json:"lastName"`
+	email             string    `gorm:"size:100;not null;unique" json:"email"`
+	password          string    `gorm:"size:100;not null;" json:"password"`
+	projectsSupported uint      `gorm:"defualt:0" json:"projectsSupported"`
+	totalAmount       uint      `gorm:"defualt:0" json:"totalAmount"`
+	countryId         uint      `gorm:"not null;"json:"countryId"`
+	country           Country   `gorm:"constraint:OnUpdate:CASCADE, OnDelete:SET NULL;"`
+	Countries         []Country
 }
 
 func hash(password string) ([]byte, error) {
@@ -45,15 +44,15 @@ func (user *User) beforeSave() error {
 
 func (user *User) prepare() {
 	gorm.Model
-	user.ID = uuid.New()
+	user.id = uuid.New()
 	user.firstName = user.firstName
 	user.lastName = user.lastName
-	user.email =  html.EscapeString(strings.TrimSpace(user.email))
+	user.email = html.EscapeString(strings.TrimSpace(user.email))
 	user.projectsSupported = user.projectsSupported
 	user.totalAmount = user.totalAmount
 }
 
-fun (user *User) validate(action string) error {
+func (user *User) validate(action string) error {
 	switch strings.ToLower(action) {
 	case "registration":
 		if user.firstName == "" {
@@ -101,10 +100,11 @@ fun (user *User) validate(action string) error {
 		if user.countryId == 0 {
 			return errors.New("Required Country")
 		}
+		return nil
 	}
 }
 
-func (user *User) saveUser(db *gorm.DB) (*Country, error) {
+func (user *User) saveUser(db *gorm.DB) (*User, error) {
 	var err error
 	err = db.Debug().Create(&user).Error
 	if err != nil {
@@ -132,7 +132,7 @@ func (user *User) findUserById(db *gorm.DB, uid uint32) (*User, error) {
 		return &User{}, err
 	}
 	if gorm.IsRecordNotFoundError(err) {
-		return &User{}, errors.NeW("User Not Found")
+		return &User{}, errors.New("User Not Found")
 	}
 	return user, err
 }
@@ -145,11 +145,11 @@ func (user *User) updateAUser(db *gorm.DB, uid uint32) (*User, error) {
 
 	db = db.Debug().Model(&User{}).Where("id = ?", uid).Take(&User{}).UpdateColumns(
 		map[string]interface{}{
-			"password": user.password,
-			"firstName": user.firstName,
-			"lastName": user.lastName,
+			"password":          user.password,
+			"firstName":         user.firstName,
+			"lastName":          user.lastName,
 			"projectsSupported": user.projectsSupported,
-			"totalAmount": user.totalAmount,
+			"totalAmount":       user.totalAmount,
 		},
 	)
 	if db.Error != nil {

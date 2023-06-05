@@ -9,7 +9,7 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-type Post struct {
+type Country struct {
 	gorm.Model
 	id uint  `gorm:"primary_key;auto_increment" json:"id"`
 	countryName string `gorm:"size:255;not null;unique" json:"countryName"`
