@@ -1,9 +1,6 @@
 package models
 
 import (
-	"errors"
-	"html"
-	"strings"
 	"time"
 
 	"github.com/jinzhu/gorm"
@@ -21,7 +18,7 @@ type Project struct {
 	goal int `gorm:"default:0" json:"goal"`
 	pledged int `gorm:"default:0" json:"pledged"`
 	investors int `gorm:"default:0" json:"investors"`
-	projectStatusId
-	organizationId 
-	userId
+	// projectStatusId
+	// organizationId 
+	// userId
 }

@@ -43,7 +43,6 @@ func (user *User) beforeSave() error {
 }
 
 func (user *User) prepare() {
-	gorm.Model
 	user.id = uuid.New()
 	user.firstName = user.firstName
 	user.lastName = user.lastName

@@ -2,9 +2,9 @@ package models
 
 import (
 	"errors"
-	"html"
+	//"html"
 	"strings"
-	"time"
+	//"time"
 
 	"github.com/jinzhu/gorm"
 )
@@ -18,7 +18,6 @@ type Country struct {
 }
 
 func (country *Country) prepare() {
-	gorm.Model
 	country.id = 0
 	country.countryName = country.countryName
 	country.countryCode = country.countryCode
@@ -47,7 +46,7 @@ func (country *Country) validate(action string) error {
 
 func (country *Country) saveCountry(db *gorm.DB) (*Country, error) {
 	var err error
-	err = db.Debug().Model(&Country{}).Create(&country).error
+	err = db.Debug().Model(&Country{}).Create(&country).Error
 
 	if err != nil {
 		return &Country{}, err
@@ -55,19 +54,19 @@ func (country *Country) saveCountry(db *gorm.DB) (*Country, error) {
 	return country, nil
 }
 
-func (country *Country) findAllCountries(db *gorm.DB) (*[]User, error) {
+func (country *Country) findAllCountries(db *gorm.DB) (*[]Country, error) {
 	var err error
 	countries := []Country{}
-	err = db.Debug().Model(&Country{}).Limit(100).Find(&users).Error
+	err = db.Debug().Model(&Country{}).Limit(100).Find(&countries).Error
 
 	if err != nil {
 		return &[]Country{}, err
 	}
-	return &users, err
+	return &countries, err
 }
 
 func (country *Country) updateACountry(db *gorm.DB, uid uint32) (*Country, error) {
-	db = db.Debug().Model(&Country).Where("id = ?", uid).Take(&Country{}).UpdateColumns(
+	db = db.Debug().Model(&Country{}).Where("id = ?", uid).Take(&Country{}).UpdateColumns(
 		map[string]interface{} {
 			"countryName": country.countryName,
 			"countryCode": country.countryCode,
@@ -78,7 +77,7 @@ func (country *Country) updateACountry(db *gorm.DB, uid uint32) (*Country, error
 	}
 
 	//display updated user
-	err = db.Debug().Model(&Country{}).Where("id = ?", uid).Take(&country).Error
+	err := db.Debug().Model(&Country{}).Where("id = ?", uid).Take(&country).Error
 	if err != nil {
 		return &Country{}, err
 	}
