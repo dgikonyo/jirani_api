@@ -5,6 +5,7 @@ import (
 	"html"
 	"log"
 	"strings"
+	"time"
 
 	"github.com/badoux/checkmail"
 	"github.com/google/uuid"
@@ -23,9 +24,12 @@ type User struct {
 	countryId         uint      `gorm:"not null;"json:"countryId"`
 	country           Country   `gorm:"constraint:OnUpdate:CASCADE, OnDelete:SET NULL;"`
 	Countries         []Country
+	CreatedAt time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"created_at"`
+	UpdatedAt time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"updated_at"`
+	DeletedAt time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"deleted_at"`
 }
 
-func hash(password string) ([]byte, error) {
+func Hash(password string) ([]byte, error) {
 	return bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 }
 
@@ -33,8 +37,8 @@ func VerifyPassword(hashedPassword, password string) error {
 	return bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
 }
 
-func (user *User) beforeSave() error {
-	hashedPassword, err := hash(user.password)
+func (user *User) BeforeSave() error {
+	hashedPassword, err := Hash(user.password)
 	if err != nil {
 		return err
 	}
@@ -42,16 +46,18 @@ func (user *User) beforeSave() error {
 	return nil
 }
 
-func (user *User) prepare() {
+func (user *User) Prepare() {
 	user.id = uuid.New()
 	user.firstName = user.firstName
 	user.lastName = user.lastName
 	user.email = html.EscapeString(strings.TrimSpace(user.email))
 	user.projectsSupported = user.projectsSupported
 	user.totalAmount = user.totalAmount
+	user.CreatedAt = time.Now()
+	user.UpdatedAt = time.Now()
 }
 
-func (user *User) validate(action string) error {
+func (user *User) Validate(action string) error {
 	switch strings.ToLower(action) {
 	case "registration":
 		if user.firstName == "" {
@@ -103,7 +109,7 @@ func (user *User) validate(action string) error {
 	}
 }
 
-func (user *User) saveUser(db *gorm.DB) (*User, error) {
+func (user *User) SaveUser(db *gorm.DB) (*User, error) {
 	var err error
 	err = db.Debug().Create(&user).Error
 	if err != nil {
@@ -113,7 +119,7 @@ func (user *User) saveUser(db *gorm.DB) (*User, error) {
 	return user, nil
 }
 
-func (user *User) findAllUsers(db *gorm.DB) (*[]User, error) {
+func (user *User) FindAllUsers(db *gorm.DB) (*[]User, error) {
 	var err error
 	users := []User{}
 	err = db.Debug().Model(&User{}).Preload("Countries").Limit(100).Find(&users).Error
@@ -124,7 +130,7 @@ func (user *User) findAllUsers(db *gorm.DB) (*[]User, error) {
 	return &users, err
 }
 
-func (user *User) findUserById(db *gorm.DB, uid uint32) (*User, error) {
+func (user *User) FindUserById(db *gorm.DB, uid uint32) (*User, error) {
 	var err error
 	err = db.Debug().Model(&User{}).Where("id = ?", uid).Take(&user).Error
 	if err != nil {
@@ -136,8 +142,8 @@ func (user *User) findUserById(db *gorm.DB, uid uint32) (*User, error) {
 	return user, err
 }
 
-func (user *User) updateAUser(db *gorm.DB, uid uint32) (*User, error) {
-	err := user.beforeSave()
+func (user *User) UpdateAUser(db *gorm.DB, uid uint32) (*User, error) {
+	err := user.BeforeSave()
 	if err != nil {
 		log.Fatal(err)
 	}
