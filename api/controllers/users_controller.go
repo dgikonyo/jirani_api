@@ -2,18 +2,14 @@ package controllers
 
 import (
 	"encoding/json"
-	"errors"
-	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
-	"strconv"
-
 	"github.com/gin-gonic/gin"
 	"jirani-api/api/models"
 )
 
 func (server *Server) createUser(ctx *gin.Context) {
-	body, err := ioutil.ReadAll(ctx.Request.Body)
+	body, err := io.ReadAll(ctx.Request.Body)
 
 	if err := ctx.BindJSON(&body); err != nil {
 		ctx.AbortWithError(http.StatusBadRequest, err)
