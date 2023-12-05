@@ -4,8 +4,8 @@ func (server *Server) initializeRoutes() {
 
 	api := server.Router.Group("/api")
 	{
-		api.GET("/", server.home)
-		api.POST("/login", server.login)
+// 		api.GET("/", server.home)
+// 		api.POST("/login", server.login)
 
 		userRoute := api.Group("/users")
 		{
@@ -13,7 +13,7 @@ func (server *Server) initializeRoutes() {
 			userRoute.GET("/show", server.getUsers)
 			userRoute.GET("/{id}", server.getUser)
 			userRoute.PUT("/{id}", server.updateUser)
-			userRoute.DELETE("/{id}", server.deleteUser)
+			//userRoute.DELETE("/{id}", server.deleteUser)
 		}
 	}
 }

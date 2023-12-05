@@ -18,7 +18,7 @@ type Server struct {
 	Router *gin.Engine
 }
 
-func (server *Server) initialize(Dbdriver, DbUser, DbPassword, DbPort, DbHost, DbName string) {
+func (server *Server) Initialize(Dbdriver, DbUser, DbPassword, DbPort, DbHost, DbName string) {
 
 	var err error
 
