@@ -1,58 +1,52 @@
 package auth
 
 import (
-	"encoding/json"
 	"errors"
-	"io"
-	"log"
-	"net/http"
-	"os"
-
+	"fmt"
 	"jirani-api/api/models"
+	"time"
 
-	"github.com/joho/godotenv"
+	"github.com/dgrijalva/jwt-go"
 )
 
 // Validate google JWT
 func ValidateGoogleJwt(tokenString string) (models.GoogleClaims, error) {
-
-}
-
-func getEnvironmentVars(key string) string {
-	//load .env file
-	err := godotenv.Load(".env")
+	claimsStruct := models.GoogleClaims{}
+	token, err := jwt.ParseWithClaims(
+		tokenString,
+		&claimsStruct,
+		func(token *jwt.Token) (interface{}, error) {
+			pem, err := models.GetGooglePublicKey(fmt.Sprintf("%s", token.Header["kid"]))
+			if err != nil {
+				return nil, err
+			}
+			key, err := jwt.ParseRSAPrivateKeyFromPEM([]byte(pem))
+			if err != nil {
+				return nil, err
+			}
+			return key, nil
+		},
+	)
 	if err != nil {
-		log.Fatal("Error loading .env file")
+		return models.GoogleClaims{}, err
 	}
 
-	return os.Getenv(key)
-}
+	claims, ok := token.Claims.(*models.GoogleClaims)
 
-func getGooglePublicKey(keyID string) (string, error) {
-	google_url := getEnvironmentVars("GOOGLE_URL")
-
-	resp, err := http.Get(google_url)
-	if err != nil {
-		log.Fatal(err)
-		return "Problem fetching public key", err
-	}
-	data, err := io.ReadAll(resp.Body)
-	if err != nil {
-		log.Fatal(err)
-		return "Problem loading public key", err
-	}
-
-	key_map := map[string]string{}
-	err = json.Unmarshal(data, &key_map)
-
-	if err != nil {
-		log.Fatal(err)
-		return "Problem getting json data", err
-	}
-
-	key, ok := key_map[keyID]
 	if !ok {
-		return "", errors.New("Key not found")
+		return models.GoogleClaims{}, errors.New("Invalid Google JWT")
 	}
-	return key, nil
+
+	if claims.Issuer != "accounts.google.com" && claims.Issuer != "https://accounts.google.com" {
+		return models.GoogleClaims{}, errors.New("iss is invalid")
+	}
+
+	if claims.Audience != "YOUR_CLIENT_ID_HERE" {
+		return models.GoogleClaims{}, errors.New("aud is invalid")
+	}
+	if claims.ExpiresAt < time.Now().UTC().Unix() {
+		return models.GoogleClaims{}, errors.New("JWT is expired")
+	}
+
+	return *claims, nil
 }
