@@ -2,11 +2,9 @@ package controllers
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
 	"jirani-api/api/models"
 	"net/http"
-
 	"github.com/gin-gonic/gin"
 )
 
