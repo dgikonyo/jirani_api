@@ -2,17 +2,19 @@ package controllers
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
-	"net/http"
-	"github.com/gin-gonic/gin"
 	"jirani-api/api/models"
+	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 func (server *Server) createUser(ctx *gin.Context) {
 	body, err := io.ReadAll(ctx.Request.Body)
-
-	if err := ctx.BindJSON(&body); err != nil {
-		ctx.AbortWithError(http.StatusBadRequest, err)
+	
+	if err := ctx.ShouldBindJSON(&body); err != nil {
+		ctx.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -20,14 +22,14 @@ func (server *Server) createUser(ctx *gin.Context) {
 	err = json.Unmarshal(body, &user)
 
 	if err != nil {
-		ctx.AbortWithError(http.StatusUnprocessableEntity, err)
+		ctx.IndentedJSON(http.StatusUnprocessableEntity, err)
 		return
 	}
 
 	user.Prepare()
 	err = user.Validate("registration")
 	if err != nil {
-		ctx.AbortWithError(http.StatusUnprocessableEntity, err)
+		ctx.IndentedJSON(http.StatusUnprocessableEntity, err)
 		return
 	}
 
@@ -37,7 +39,7 @@ func (server *Server) createUser(ctx *gin.Context) {
 		ctx.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
-	ctx.IndentedJSON(http.StatusCreated, userCreated)
+	ctx.IndentedJSON(http.StatusCreated, gin.H{"data": userCreated})
 }
 
 func (server *Server) getUsers(ctx *gin.Context) {
@@ -45,7 +47,7 @@ func (server *Server) getUsers(ctx *gin.Context) {
 	users, err := user.FindAllUsers(server.DB)
 
 	if err != nil {
-		ctx.AbortWithError(http.StatusInternalServerError, err)
+		ctx.JSON(http.StatusInternalServerError, err)
 		return
 	}
 	ctx.IndentedJSON(http.StatusOK, users)
@@ -56,5 +58,5 @@ func (server *Server) getUser(ctx *gin.Context) {
 }
 
 func (server *Server) updateUser(ctx *gin.Context) {
-	
+
 }
