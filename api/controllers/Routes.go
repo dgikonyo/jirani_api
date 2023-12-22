@@ -2,10 +2,10 @@ package controllers
 
 func (server *Server) initializeRoutes() {
 
-	api := server.Router.Group("/api")
+	api := server.Router.Group("/api/v1")
 	{
-// 		api.GET("/", server.home)
-// 		api.POST("/login", server.login)
+		api.GET("/")
+		// 		api.POST("/login", server.login)
 
 		userRoute := api.Group("/users")
 		{

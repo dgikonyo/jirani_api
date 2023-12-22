@@ -8,11 +8,10 @@ import (
 )
 
 type Role struct {
-	id        uint      `gorm:"primary_key" json:"id,omitempty"`
-	name      string    `gorm:"size:255;not null;" json:"name"`
-	CreatedAt time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"created_at"`
-	UpdatedAt time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"updated_at"`
-	DeletedAt time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"deleted_at"`
+	gorm.Model
+	id    uint   `gorm:"primary_key""`
+	name  string `gorm:"size:255;not null;"`
+	Users []User `gorm:"foreignKey:RoleID,constraint:OnUpdate:CASCADE,OnDelete:SET NULL"`
 }
 
 func (role *Role) Prepare() {

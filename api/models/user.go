@@ -7,29 +7,22 @@ import (
 	"strings"
 	"time"
 
-	"github.com/badoux/checkmail"
 	"github.com/google/uuid"
 	"github.com/jinzhu/gorm"
 	"golang.org/x/crypto/bcrypt"
 )
 
 type User struct {
-	id                uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4();primary_key" json:"id,omitempty"`
-	firstName         string    `gorm:"size:255;not null;" json:"firstName"`
-	lastName          string    `gorm:"size:255;not null;" json:"lastName"`
-	email             string    `gorm:"size:100;not null;unique" json:"email"`
-	password          string    `gorm:"size:100;not null;" json:"password"`
-	projectsSupported uint      `gorm:"defualt:0" json:"projectsSupported"`
-	totalAmount       uint      `gorm:"defualt:0" json:"totalAmount"`
-	countryId         uint      `gorm:"not null;"json:"countryId"`
-	roleId            uint      `gorm:"not null;"json:"roleId"`
-	country           Country   `gorm:"constraint:OnUpdate:CASCADE, OnDelete:SET NULL;"`
-	Countries         []Country
-	role              Role `gorm:"constraint:OnUpdate:CASCADE, OnDelete:SET NULL;"`
-	Roles             []Role
-	CreatedAt         time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"created_at"`
-	UpdatedAt         time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"updated_at"`
-	DeletedAt         time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"deleted_at"`
+	gorm.Model
+	id                uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4();primary_key"`
+	firstName         string
+	lastName          string
+	email             string
+	password          string
+	projectsSupported uint `gorm:"default:0;"`
+	totalAmount       uint `gorm:"default:0;"`
+	CountryID         uint `gorm:"not null;"`
+	RoleID            uint `gorm:"not null;"`
 }
 
 func Hash(password string) ([]byte, error) {
@@ -56,65 +49,10 @@ func (user *User) Prepare() {
 	user.email = html.EscapeString(strings.TrimSpace(user.email))
 	user.projectsSupported = user.projectsSupported
 	user.totalAmount = user.totalAmount
-	user.countryId = user.countryId
-	user.roleId = user.roleId
+	user.CountryID = user.CountryID
+	user.RoleID = user.RoleID
 	user.CreatedAt = time.Now()
 	user.UpdatedAt = time.Now()
-}
-
-func (user *User) Validate(action string) error {
-	switch strings.ToLower(action) {
-	case "registration":
-		if user.firstName == "" {
-			return errors.New("Required First Name")
-		}
-		if user.lastName == "" {
-			return errors.New("Required Last Name")
-		}
-		if user.email == "" {
-			return errors.New("Required Email")
-		}
-		if err := checkmail.ValidateFormat(user.email); err != nil {
-			return errors.New("Invalid Email")
-		}
-		if user.countryId == 0 {
-			return errors.New("Required Country")
-		}
-		if user.roleId == 0 {
-			return errors.New("Required Role")
-		}
-
-		return nil
-	case "login":
-		if user.email == "" {
-			return errors.New("Required Email")
-		}
-		if err := checkmail.ValidateFormat(user.email); err != nil {
-			return errors.New("Invalid Email")
-		}
-		if user.password == "" {
-			return errors.New("Required Password")
-		}
-
-		return nil
-	default:
-		if user.firstName == "" {
-			return errors.New("Required First Name")
-		}
-		if user.lastName == "" {
-			return errors.New("Required Last Name")
-		}
-		if user.email == "" {
-			return errors.New("Required Email")
-		}
-		if err := checkmail.ValidateFormat(user.email); err != nil {
-			return errors.New("Invalid Email")
-		}
-		if user.countryId == 0 {
-			return errors.New("Required Country")
-		}
-		return nil
-	}
 }
 
 func (user *User) SaveUser(db *gorm.DB) (*User, error) {
