@@ -21,7 +21,7 @@ CREATE DATABASE [IF NOT EXISTS] db_name;
 ```
 3. Grant privileges to newly created user, also we want this user to own this database.
 ```bash
-GRANT ALL PRIVILEGES ON db_name TO target_user;
+GRANT ALL PRIVILEGES ON DATABASE database_name TO target_name;
 
 # Changing ownership
 ALTER DATABASE db_name
