@@ -14,41 +14,41 @@ import (
 
 type User struct {
 	gorm.Model
-	id                uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4();primary_key"`
-	firstName         string
-	lastName          string
-	email             string
-	password          string
-	projectsSupported uint `gorm:"default:0;"`
-	totalAmount       uint `gorm:"default:0;"`
+	ID                uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4();primary_key"`
+	FirstName         string
+	LastName          string
+	Email             string
+	Password          string
+	ProjectsSupported uint `gorm:"default:0;"`
+	TotalAmount       uint `gorm:"default:0;"`
 	CountryID         uint `gorm:"not null;"`
 	RoleID            uint `gorm:"not null;"`
 }
 
-func Hash(password string) ([]byte, error) {
-	return bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+func Hash(Password string) ([]byte, error) {
+	return bcrypt.GenerateFromPassword([]byte(Password), bcrypt.DefaultCost)
 }
 
-func VerifyPassword(hashedPassword, password string) error {
-	return bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
+func VerifyPassword(hashedPassword, Password string) error {
+	return bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(Password))
 }
 
 func (user *User) BeforeSave() error {
-	hashedPassword, err := Hash(user.password)
+	hashedPassword, err := Hash(user.Password)
 	if err != nil {
 		return err
 	}
-	user.password = string(hashedPassword)
+	user.Password = string(hashedPassword)
 	return nil
 }
 
 func (user *User) Prepare() {
-	user.id = uuid.New()
-	user.firstName = user.firstName
-	user.lastName = user.lastName
-	user.email = html.EscapeString(strings.TrimSpace(user.email))
-	user.projectsSupported = user.projectsSupported
-	user.totalAmount = user.totalAmount
+	user.ID = uuid.New()
+	user.FirstName = user.FirstName
+	user.LastName = user.LastName
+	user.Email = html.EscapeString(strings.TrimSpace(user.Email))
+	user.ProjectsSupported = user.ProjectsSupported
+	user.TotalAmount = user.TotalAmount
 	user.CountryID = user.CountryID
 	user.RoleID = user.RoleID
 	user.CreatedAt = time.Now()
@@ -96,11 +96,11 @@ func (user *User) UpdateAUser(db *gorm.DB, uid uint32) (*User, error) {
 
 	db = db.Debug().Model(&User{}).Where("id = ?", uid).Take(&User{}).UpdateColumns(
 		map[string]interface{}{
-			"password":          user.password,
-			"firstName":         user.firstName,
-			"lastName":          user.lastName,
-			"projectsSupported": user.projectsSupported,
-			"totalAmount":       user.totalAmount,
+			"password":          user.Password,
+			"firstName":         user.FirstName,
+			"lastName":          user.LastName,
+			"projectsSupported": user.ProjectsSupported,
+			"totalAmount":       user.TotalAmount,
 		},
 	)
 	if db.Error != nil {
