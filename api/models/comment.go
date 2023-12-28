@@ -8,6 +8,5 @@ import (
 type Comment struct {
 	gorm.Model
 	Id        uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4();primary_key" json:"id,omitempty"`
-	ProjectId uuid.UUID `gorm:"not null;"json:"projectId"`
-	Project   Project   `gorm:"constraint:OnUpdate:CASCADE, OnDelete:SET NULL;"`
+	ProjectID uuid.UUID `gorm:"not null;" json:"project_id"`
 }

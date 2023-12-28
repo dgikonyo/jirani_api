@@ -1,10 +1,9 @@
 package models
 
 import (
-	"time"
-
 	"github.com/google/uuid"
 	"github.com/jinzhu/gorm"
+	"time"
 )
 
 type Project struct {
@@ -18,6 +17,7 @@ type Project struct {
 	Goal               int        `gorm:"default:0" json:"goal"`
 	Pledged            int        `gorm:"default:0" json:"pledged"`
 	Investors          int        `gorm:"default:0" json:"investors"`
+	Comments           []Comment  `gorm:"foreignKey:ProjectID,constraint:OnUpdate:CASCADE,OnDelete:SET NULL"`
 	// projectStatusId
 	// organizationId
 	// userId

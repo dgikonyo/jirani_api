@@ -9,8 +9,8 @@ import (
 
 type Role struct {
 	gorm.Model
-	Id    uint   `gorm:"primary_key""`
-	Name  string `gorm:"size:255;not null;"`
+	ID    uint   `gorm:"primary_key""`
+	Name  string `gorm:"size:255;not null;json:name"`
 	Users []User `gorm:"foreignKey:RoleID,constraint:OnUpdate:CASCADE,OnDelete:SET NULL"`
 }
 

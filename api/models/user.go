@@ -2,27 +2,26 @@ package models
 
 import (
 	"errors"
+	"github.com/google/uuid"
+	"github.com/jinzhu/gorm"
+	"golang.org/x/crypto/bcrypt"
 	"html"
 	"log"
 	"strings"
 	"time"
-
-	"github.com/google/uuid"
-	"github.com/jinzhu/gorm"
-	"golang.org/x/crypto/bcrypt"
 )
 
 type User struct {
 	gorm.Model
 	ID                uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4();primary_key"`
-	FirstName         string
-	LastName          string
-	Email             string
-	Password          string
-	ProjectsSupported uint `gorm:"default:0;"`
-	TotalAmount       uint `gorm:"default:0;"`
-	CountryID         uint `gorm:"not null;"`
-	RoleID            uint `gorm:"not null;"`
+	FirstName         string    `gorm:"size:100;" json:"first_name"`
+	LastName          string    `gorm:"size:100;" json:"last_name"`
+	Email             string    `gorm:"size:100;" json:"email"`
+	Password          string    `gorm:"size:100;" json:"password"`
+	ProjectsSupported uint      `gorm:"default:0;" json:"projects_supported"`
+	TotalAmount       uint      `gorm:"default:0;" json:"total_amount"`
+	CountryID         uint      `gorm:"not null;" json:"country_id"`
+	RoleID            uint      `gorm:"not null;" json:"role_id"`
 }
 
 func Hash(Password string) ([]byte, error) {

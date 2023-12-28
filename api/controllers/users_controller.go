@@ -1,10 +1,9 @@
 package controllers
 
 import (
+	"github.com/gin-gonic/gin"
 	"jirani-api/api/models"
 	"net/http"
-
-	"github.com/gin-gonic/gin"
 )
 
 func (server *Server) createUser(ctx *gin.Context) {
@@ -13,7 +12,7 @@ func (server *Server) createUser(ctx *gin.Context) {
 		ctx.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	
+
 	user.Prepare()
 	userCreated, err := user.SaveUser(server.DB)
 
