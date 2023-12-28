@@ -9,7 +9,7 @@ import (
 
 type Role struct {
 	gorm.Model
-	ID    uint   `gorm:"primary_key""`
+	Id    uint   `gorm:"primary_key""`
 	Name  string `gorm:"size:255;not null;"`
 	Users []User `gorm:"foreignKey:RoleID,constraint:OnUpdate:CASCADE,OnDelete:SET NULL"`
 }
